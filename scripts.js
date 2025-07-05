@@ -50,19 +50,10 @@ let peerConfiguration = {
             urls: 'turn:openrelay.metered.ca:443',
             username: 'openrelayproject',
             credential: 'openrelayproject'
-        },
-        // TURN servers dự phòng
-        {
-            urls: 'turn:openrelay.metered.ca:3478',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        {
-            urls: 'turn:openrelay.metered.ca:5349',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
         }
-    ]
+    ],
+    iceCandidatePoolSize: 10,
+    iceTransportPolicy: 'all'
 };
 
 // Cập nhật UI
@@ -190,16 +181,18 @@ const createPeerConnection = (offerObj) => {
                 console.log('Signaling state:', peerConnection.signalingState);
             });
 
-            peerConnection.addEventListener('icecandidate', e => {
-                console.log('ICE candidate found');
-                if (e.candidate) {
-                    socket.emit('sendIceCandidateToSignalingServer', {
-                        iceCandidate: e.candidate,
-                        iceUserName: userName,
-                        didIOffer,
-                    });
-                }
-            });
+                    peerConnection.addEventListener('icecandidate', e => {
+            console.log('ICE candidate found:', e.candidate);
+            if (e.candidate) {
+                socket.emit('sendIceCandidateToSignalingServer', {
+                    iceCandidate: e.candidate,
+                    iceUserName: userName,
+                    didIOffer,
+                });
+            } else {
+                console.log('ICE gathering completed');
+            }
+        });
 
             peerConnection.addEventListener('track', e => {
                 console.log("Got track from remote peer");
@@ -208,12 +201,24 @@ const createPeerConnection = (offerObj) => {
                 });
             });
 
-            peerConnection.addEventListener('connectionstatechange', () => {
-                console.log('Connection state:', peerConnection.connectionState);
-                if (peerConnection.connectionState === 'connected') {
-                    console.log('WebRTC connection established!');
-                }
-            });
+                    peerConnection.addEventListener('connectionstatechange', () => {
+            console.log('Connection state:', peerConnection.connectionState);
+            if (peerConnection.connectionState === 'connected') {
+                console.log('WebRTC connection established!');
+            } else if (peerConnection.connectionState === 'failed') {
+                console.error('WebRTC connection failed!');
+            } else if (peerConnection.connectionState === 'disconnected') {
+                console.log('WebRTC connection disconnected!');
+            }
+        });
+
+        peerConnection.addEventListener('iceconnectionstatechange', () => {
+            console.log('ICE connection state:', peerConnection.iceConnectionState);
+        });
+
+        peerConnection.addEventListener('icegatheringstatechange', () => {
+            console.log('ICE gathering state:', peerConnection.iceGatheringState);
+        });
 
             // Nếu có offer object, set remote description
             if (offerObj) {
@@ -231,8 +236,14 @@ const createPeerConnection = (offerObj) => {
 // Thêm ICE candidate mới
 const addNewIceCandidate = (iceCandidate) => {
     if (peerConnection) {
-        peerConnection.addIceCandidate(iceCandidate);
-        console.log("Added ICE Candidate from signaling server");
+        try {
+            peerConnection.addIceCandidate(iceCandidate);
+            console.log("Added ICE Candidate from signaling server:", iceCandidate);
+        } catch (error) {
+            console.error("Error adding ICE candidate:", error);
+        }
+    } else {
+        console.warn("No peer connection available for ICE candidate");
     }
 };
 
