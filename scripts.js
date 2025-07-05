@@ -50,6 +50,23 @@ let peerConfiguration = {
             urls: 'turn:openrelay.metered.ca:443',
             username: 'openrelayproject',
             credential: 'openrelayproject'
+        },
+        // TURN servers dự phòng
+        {
+            urls: 'turn:openrelay.metered.ca:3478',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:5349',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        // TURN servers miễn phí khác
+        {
+            urls: 'turn:openrelay.metered.ca:80',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
         }
     ],
     iceCandidatePoolSize: 10,
@@ -209,11 +226,27 @@ const createPeerConnection = (offerObj) => {
                 console.error('WebRTC connection failed!');
             } else if (peerConnection.connectionState === 'disconnected') {
                 console.log('WebRTC connection disconnected!');
+            } else if (peerConnection.connectionState === 'connecting') {
+                console.log('WebRTC connecting...');
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    if (peerConnection.connectionState === 'connecting') {
+                        console.warn('Connection timeout - trying to restart...');
+                        // Optionally restart the connection
+                    }
+                }, 10000);
             }
         });
 
         peerConnection.addEventListener('iceconnectionstatechange', () => {
             console.log('ICE connection state:', peerConnection.iceConnectionState);
+            if (peerConnection.iceConnectionState === 'failed') {
+                console.error('ICE connection failed - no TURN servers available?');
+            } else if (peerConnection.iceConnectionState === 'connected') {
+                console.log('ICE connection established!');
+            } else if (peerConnection.iceConnectionState === 'checking') {
+                console.log('ICE checking candidates...');
+            }
         });
 
         peerConnection.addEventListener('icegatheringstatechange', () => {
