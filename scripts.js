@@ -3,8 +3,8 @@
 // const SIGNALING_SERVER_URL = 'https://your-app-name.railway.app'; // Railway URL
 
 // Sử dụng localhost cho development
-// const SIGNALING_SERVER_URL = 'https://webrtc-production-5c3a.up.railway.app';
-const SIGNALING_SERVER_URL = 'https://localhost:8181'; // Localhost for development
+const SIGNALING_SERVER_URL = 'https://webrtc-production-5c3a.up.railway.app';
+//const SIGNALING_SERVER_URL = 'https://localhost:8181'; // Localhost for development
 
 const userName = "User-" + Math.floor(Math.random() * 100000);
 const password = "x";
@@ -40,7 +40,7 @@ let peerConfiguration = {
                 'stun:stun4.l.google.com:19302'
             ]
         },
-        // Thêm TURN servers nếu cần (có thể dùng free TURN servers)
+        // TURN servers cho kết nối toàn cầu
         {
             urls: 'turn:openrelay.metered.ca:80',
             username: 'openrelayproject',
@@ -50,6 +50,28 @@ let peerConfiguration = {
             urls: 'turn:openrelay.metered.ca:443',
             username: 'openrelayproject',
             credential: 'openrelayproject'
+        },
+        // Thêm TURN servers dự phòng
+        {
+            urls: 'turn:openrelay.metered.ca:3478',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:5349',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        // TURN servers miễn phí khác
+        {
+            urls: 'turn:stun.l.google.com:19302',
+            username: '',
+            credential: ''
+        },
+        {
+            urls: 'turn:stun1.l.google.com:19302',
+            username: '',
+            credential: ''
         }
     ]
 };
