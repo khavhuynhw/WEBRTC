@@ -1,11 +1,7 @@
 // Configuration - Thay đổi URL này thành URL của signaling server của bạn
-// Sau khi deploy signaling server, thay đổi URL dưới đây:
-// const SIGNALING_SERVER_URL = 'https://your-signaling-server.railway.app'; // Railway
-// const SIGNALING_SERVER_URL = 'https://your-signaling-server.onrender.com'; // Render
-// const SIGNALING_SERVER_URL = 'https://your-signaling-server.herokuapp.com'; // Heroku
-
-// Sử dụng localhost cho development
-const SIGNALING_SERVER_URL = 'http://localhost:3001';
+const SIGNALING_SERVER_URL = 'https://your-signaling-server.herokuapp.com'; // Thay đổi URL này
+// Hoặc sử dụng localhost cho development
+// const SIGNALING_SERVER_URL = 'http://localhost:3001';
 
 const userName = "User-" + Math.floor(Math.random() * 100000);
 const password = "x";
@@ -180,42 +176,91 @@ const createPeerConnection = (offerObj) => {
                 console.log('Signaling state:', peerConnection.signalingState);
             });
 
-        peerConnection.addEventListener('icecandidate',e=>{
-            console.log('........Ice candidate found!......')
-            console.log(e)
-            if(e.candidate){
-                socket.emit('sendIceCandidateToSignalingServer',{
-                    iceCandidate: e.candidate,
-                    iceUserName: userName,
-                    didIOffer,
-                })    
+            peerConnection.addEventListener('icecandidate', e => {
+                console.log('ICE candidate found');
+                if (e.candidate) {
+                    socket.emit('sendIceCandidateToSignalingServer', {
+                        iceCandidate: e.candidate,
+                        iceUserName: userName,
+                        didIOffer,
+                    });
+                }
+            });
+
+            peerConnection.addEventListener('track', e => {
+                console.log("Got track from remote peer");
+                e.streams[0].getTracks().forEach(track => {
+                    remoteStream.addTrack(track);
+                });
+            });
+
+            peerConnection.addEventListener('connectionstatechange', () => {
+                console.log('Connection state:', peerConnection.connectionState);
+                if (peerConnection.connectionState === 'connected') {
+                    console.log('WebRTC connection established!');
+                }
+            });
+
+            // Nếu có offer object, set remote description
+            if (offerObj) {
+                await peerConnection.setRemoteDescription(offerObj.offer);
             }
-        })
-        
-        peerConnection.addEventListener('track',e=>{
-            console.log("Got a track from the other peer!! How excting")
-            console.log(e)
-            e.streams[0].getTracks().forEach(track=>{
-                remoteStream.addTrack(track,remoteStream);
-                console.log("Here's an exciting moment... fingers cross")
-            })
-        })
-
-        if(offerObj){
-            //this won't be set when called from call();
-            //will be set when we call from answerOffer()
-            // console.log(peerConnection.signalingState) //should be stable because no setDesc has been run yet
-            await peerConnection.setRemoteDescription(offerObj.offer)
-            // console.log(peerConnection.signalingState) //should be have-remote-offer, because client2 has setRemoteDesc on the offer
+            
+            resolve();
+        } catch (err) {
+            console.error('Error creating peer connection:', err);
+            reject(err);
         }
-        resolve();
-    })
-}
+    });
+};
 
-const addNewIceCandidate = iceCandidate=>{
-    peerConnection.addIceCandidate(iceCandidate)
-    console.log("======Added Ice Candidate======")
-}
+// Thêm ICE candidate mới
+const addNewIceCandidate = (iceCandidate) => {
+    if (peerConnection) {
+        peerConnection.addIceCandidate(iceCandidate);
+        console.log("Added ICE Candidate from signaling server");
+    }
+};
 
+// Hangup function
+const hangup = () => {
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
+    
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+    }
+    
+    localVideoEl.srcObject = null;
+    remoteVideoEl.srcObject = null;
+    
+    isInCall = false;
+    didIOffer = false;
+    updateUI();
+    
+    // Clear answer buttons
+    document.querySelector('#answer').innerHTML = '';
+    
+    console.log('Call ended');
+};
 
-document.querySelector('#call').addEventListener('click',call)
+// Event listeners
+document.querySelector('#call').addEventListener('click', call);
+document.querySelector('#hangup').addEventListener('click', hangup);
+
+// Socket connection status
+socket.on('connect', () => {
+    console.log('Connected to signaling server');
+    document.querySelector('#user-name').innerHTML = `Your ID: ${userName} (Connected)`;
+});
+
+socket.on('disconnect', () => {
+    console.log('Disconnected from signaling server');
+    document.querySelector('#user-name').innerHTML = `Your ID: ${userName} (Disconnected)`;
+});
+
+// Initialize UI
+updateUI();
