@@ -1,18 +1,24 @@
 {
-  "name": "signalingpeerconnection",
+  "name": "webrtc-video-call",
   "version": "1.0.0",
-  "description": "",
+  "description": "WebRTC video calling app for Vercel deployment",
   "main": "scripts.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "deploy": "vercel --prod"
   },
-  "keywords": [],
+  "keywords": ["webrtc", "video-call", "vercel"],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
-    "mkcert": "^1.5.1",
-    "socket.io": "^4.6.2"
+    "socket.io": "^4.6.2",
+    "socket.io-client": "^4.6.2"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
   }
 }
