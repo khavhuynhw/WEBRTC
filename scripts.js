@@ -51,7 +51,7 @@ let peerConfiguration = {
             username: 'openrelayproject',
             credential: 'openrelayproject'
         },
-        // Thêm TURN servers dự phòng
+        // TURN servers dự phòng
         {
             urls: 'turn:openrelay.metered.ca:3478',
             username: 'openrelayproject',
@@ -61,17 +61,6 @@ let peerConfiguration = {
             urls: 'turn:openrelay.metered.ca:5349',
             username: 'openrelayproject',
             credential: 'openrelayproject'
-        },
-        // TURN servers miễn phí khác
-        {
-            urls: 'turn:stun.l.google.com:19302',
-            username: '',
-            credential: ''
-        },
-        {
-            urls: 'turn:stun1.l.google.com:19302',
-            username: '',
-            credential: ''
         }
     ]
 };
