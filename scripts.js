@@ -3,7 +3,7 @@
 // const SIGNALING_SERVER_URL = 'https://your-app-name.railway.app'; // Railway URL
 
 // Sử dụng localhost cho development
-const SIGNALING_SERVER_URL = 'webrtc-production-5c3a.up.railway.app';
+const SIGNALING_SERVER_URL = 'https://webrtc-production-5c3a.up.railway.app';
 
 const userName = "User-" + Math.floor(Math.random() * 100000);
 const password = "x";

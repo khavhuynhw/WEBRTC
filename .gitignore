@@ -74,3 +74,4 @@ Thumbs.db
 server.js
 cert.key
 cert.crt
+.vercel
