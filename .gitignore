@@ -69,3 +69,8 @@ Thumbs.db
 *.key
 *.crt
 *.pem
+
+# Old server files
+server.js
+cert.key
+cert.crt
