@@ -1,7 +1,9 @@
 // Configuration - Thay đổi URL này thành URL của signaling server của bạn
-const SIGNALING_SERVER_URL = 'https://your-signaling-server.herokuapp.com'; // Thay đổi URL này
-// Hoặc sử dụng localhost cho development
-// const SIGNALING_SERVER_URL = 'http://localhost:3001';
+// Sau khi deploy signaling server lên Railway, thay đổi URL dưới đây:
+// const SIGNALING_SERVER_URL = 'https://your-app-name.railway.app'; // Railway URL
+
+// Sử dụng localhost cho development
+const SIGNALING_SERVER_URL = 'webrtc-production-5c3a.up.railway.app';
 
 const userName = "User-" + Math.floor(Math.random() * 100000);
 const password = "x";
