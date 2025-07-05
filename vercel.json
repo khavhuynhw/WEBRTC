@@ -4,6 +4,14 @@
     {
       "src": "index.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.js",
+      "use": "@vercel/static"
     }
   ],
   "rewrites": [
@@ -27,6 +35,24 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "*.css",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/css"
+        }
+      ]
+    },
+    {
+      "source": "*.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
         }
       ]
     }
