@@ -28,7 +28,7 @@ let peerConnection;
 let didIOffer = false;
 let isInCall = false;
 
-// Cấu hình ICE servers với TURN servers của Metered.ca
+// Cấu hình ICE servers với TURN servers của Metered.ca (có credentials)
 let peerConfiguration = {
     iceServers: [
         {
@@ -37,29 +37,30 @@ let peerConfiguration = {
                 'stun:stun1.l.google.com:19302',
                 'stun:stun2.l.google.com:19302',
                 'stun:stun3.l.google.com:19302',
-                'stun:stun4.l.google.com:19302'
+                'stun:stun4.l.google.com:19302',
+                'stun:stun.relay.metered.ca:80'
             ]
         },
-        // TURN servers của Metered.ca (miễn phí)
+        // TURN servers của Metered.ca (với credentials thực)
         {
-            urls: 'turn:openrelay.metered.ca:80',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
+            urls: 'turn:standard.relay.metered.ca:80',
+            username: '7b439e5958fb600864924aa5',
+            credential: '+ONmk4d0Ax1Uvm85'
         },
         {
-            urls: 'turn:openrelay.metered.ca:443',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
+            urls: 'turn:standard.relay.metered.ca:80?transport=tcp',
+            username: '7b439e5958fb600864924aa5',
+            credential: '+ONmk4d0Ax1Uvm85'
         },
         {
-            urls: 'turn:openrelay.metered.ca:3478',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
+            urls: 'turn:standard.relay.metered.ca:443',
+            username: '7b439e5958fb600864924aa5',
+            credential: '+ONmk4d0Ax1Uvm85'
         },
         {
-            urls: 'turn:openrelay.metered.ca:5349',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
+            urls: 'turns:standard.relay.metered.ca:443?transport=tcp',
+            username: '7b439e5958fb600864924aa5',
+            credential: '+ONmk4d0Ax1Uvm85'
         }
     ],
     iceCandidatePoolSize: 10,
