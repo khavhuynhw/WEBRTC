@@ -21,7 +21,7 @@ const io = socketio(expressServer,{
     cors: {
         origin: [
             "https://localhost",
-            'https://192.168.1.9' //if using a phone or another computer
+            // 'https://IP-DEV' //if using a phone or another computer
         ],
         methods: ["GET", "POST"]
     }
