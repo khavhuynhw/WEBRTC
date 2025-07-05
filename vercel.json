@@ -39,7 +39,7 @@
       ]
     },
     {
-      "source": "*.css",
+      "source": "/styles.css",
       "headers": [
         {
           "key": "Content-Type",
@@ -48,7 +48,16 @@
       ]
     },
     {
-      "source": "*.js",
+      "source": "/scripts.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    },
+    {
+      "source": "/socketListeners.js",
       "headers": [
         {
           "key": "Content-Type",
