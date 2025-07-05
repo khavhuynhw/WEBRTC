@@ -28,7 +28,7 @@ let peerConnection;
 let didIOffer = false;
 let isInCall = false;
 
-// Cấu hình ICE servers tốt hơn cho production
+// Cấu hình ICE servers với TURN servers của Metered.ca
 let peerConfiguration = {
     iceServers: [
         {
@@ -40,7 +40,7 @@ let peerConfiguration = {
                 'stun:stun4.l.google.com:19302'
             ]
         },
-                // TURN servers cho kết nối toàn cầu
+        // TURN servers của Metered.ca (miễn phí)
         {
             urls: 'turn:openrelay.metered.ca:80',
             username: 'openrelayproject',
@@ -51,7 +51,6 @@ let peerConfiguration = {
             username: 'openrelayproject',
             credential: 'openrelayproject'
         },
-        // TURN servers dự phòng
         {
             urls: 'turn:openrelay.metered.ca:3478',
             username: 'openrelayproject',
@@ -61,52 +60,6 @@ let peerConfiguration = {
             urls: 'turn:openrelay.metered.ca:5349',
             username: 'openrelayproject',
             credential: 'openrelayproject'
-        },
-        // TURN servers miễn phí khác
-        {
-            urls: 'turn:openrelay.metered.ca:80',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        // Thêm TURN servers khác
-        {
-            urls: 'turn:openrelay.metered.ca:443',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        // TURN servers từ Twilio (cần credentials)
-        // {
-        //     urls: 'turn:global.turn.twilio.com:3478',
-        //     username: 'your_twilio_username',
-        //     credential: 'your_twilio_password'
-        // },
-        // TURN servers miễn phí khác
-        {
-            urls: 'turn:openrelay.metered.ca:80',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        {
-            urls: 'turn:openrelay.metered.ca:443',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        // TURN servers từ các provider khác
-        {
-            urls: 'turn:openrelay.metered.ca:3478',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        {
-            urls: 'turn:openrelay.metered.ca:5349',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        // TURN servers từ XirSys (miễn phí)
-        {
-            urls: 'turn:global.turn.xirsys.com:3478',
-            username: 'your_xirsys_username',
-            credential: 'your_xirsys_password'
         }
     ],
     iceCandidatePoolSize: 10,
