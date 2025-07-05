@@ -67,10 +67,32 @@ let peerConfiguration = {
             urls: 'turn:openrelay.metered.ca:80',
             username: 'openrelayproject',
             credential: 'openrelayproject'
+        },
+        // Thêm TURN servers khác
+        {
+            urls: 'turn:openrelay.metered.ca:443',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
         }
     ],
     iceCandidatePoolSize: 10,
     iceTransportPolicy: 'all'
+};
+
+// Fallback configuration nếu TURN servers không hoạt động
+let fallbackConfiguration = {
+    iceServers: [
+        {
+            urls: [
+                'stun:stun.l.google.com:19302',
+                'stun:stun1.l.google.com:19302',
+                'stun:stun2.l.google.com:19302',
+                'stun:stun3.l.google.com:19302',
+                'stun:stun4.l.google.com:19302'
+            ]
+        }
+    ],
+    iceCandidatePoolSize: 10
 };
 
 // Cập nhật UI
@@ -235,6 +257,11 @@ const createPeerConnection = (offerObj) => {
                         // Optionally restart the connection
                     }
                 }, 10000);
+            } else if (peerConnection.connectionState === 'failed') {
+                console.error('WebRTC connection failed!');
+                // Try with fallback configuration
+                console.log('Trying with STUN-only configuration...');
+                // You can implement retry logic here
             }
         });
 
@@ -308,6 +335,7 @@ const hangup = () => {
 // Event listeners
 document.querySelector('#call').addEventListener('click', call);
 document.querySelector('#hangup').addEventListener('click', hangup);
+document.querySelector('#test-stun').addEventListener('click', testStunOnly);
 
 // Socket connection status
 socket.on('connect', () => {
@@ -319,6 +347,73 @@ socket.on('disconnect', () => {
     console.log('Disconnected from signaling server');
     document.querySelector('#user-name').innerHTML = `Your ID: ${userName} (Disconnected)`;
 });
+
+// Test STUN-only configuration
+const testStunOnly = async () => {
+    try {
+        console.log('Testing STUN-only configuration...');
+        await fetchUserMedia();
+        
+        // Use fallback configuration
+        peerConnection = new RTCPeerConnection(fallbackConfiguration);
+        remoteStream = new MediaStream();
+        remoteVideoEl.srcObject = remoteStream;
+
+        // Add local tracks
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
+
+        // Event listeners
+        peerConnection.addEventListener("signalingstatechange", (event) => {
+            console.log('Signaling state:', peerConnection.signalingState);
+        });
+
+        peerConnection.addEventListener('icecandidate', e => {
+            console.log('STUN ICE candidate found:', e.candidate);
+            if (e.candidate) {
+                socket.emit('sendIceCandidateToSignalingServer', {
+                    iceCandidate: e.candidate,
+                    iceUserName: userName,
+                    didIOffer: true,
+                });
+            } else {
+                console.log("STUN ICE gathering completed");
+            }
+        });
+
+        peerConnection.addEventListener('track', e => {
+            console.log("Got track from remote peer");
+            e.streams[0].getTracks().forEach(track => {
+                remoteStream.addTrack(track);
+            });
+        });
+
+        peerConnection.addEventListener('connectionstatechange', () => {
+            console.log('STUN Connection state:', peerConnection.connectionState);
+        });
+
+        peerConnection.addEventListener('iceconnectionstatechange', () => {
+            console.log('STUN ICE connection state:', peerConnection.iceConnectionState);
+        });
+
+        // Create offer
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        didIOffer = true;
+        isInCall = true;
+        updateUI();
+        
+        socket.emit('newOffer', offer);
+        
+        document.querySelector('#waiting').style.display = 'block';
+        document.querySelector('#waiting').innerHTML = 'Testing STUN-only connection...';
+        
+    } catch (err) {
+        console.error('Error testing STUN-only:', err);
+        alert('Error testing STUN-only connection.');
+    }
+};
 
 // Initialize UI
 updateUI();
